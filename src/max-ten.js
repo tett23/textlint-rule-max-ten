@@ -6,7 +6,9 @@ import {split as splitSentences} from "sentence-splitter";
 import Source from "structured-source";
 const defaultOptions = {
     max: 3, // 1文に利用できる最大の、の数
-    strict: false // 例外ルールを適応するかどうか
+    strict: false, // 例外ルールを適応するかどうか
+    charRegExp: '[。\?\!？！]',
+    newLineCharacters: "\n\n"
 };
 
 function isSandwichedMeishi({
@@ -40,6 +42,8 @@ function addPositions(base, relative) {
 module.exports = function(context, options = {}) {
     const maxLen = options.max || defaultOptions.max;
     const isStrict = options.strict || defaultOptions.strict;
+    const charRegExp = new RegExp(options.charRegExp || defaultOptions.max);
+    const newLineCharacters = options.newLineCharacters || defaultOptions.strict;
     let helper = new RuleHelper(context);
     let {Syntax, RuleError, report, getSource} = context;
     return {
@@ -48,8 +52,8 @@ module.exports = function(context, options = {}) {
                 return;
             }
             let sentences = splitSentences(getSource(node), {
-                charRegExp: /[。\?\!？！]/,
-                newLineCharacters: "\n\n"
+                charRegExp,
+                newLineCharacters
             });
             /*
              <p>
